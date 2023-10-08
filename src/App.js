@@ -2,46 +2,68 @@ import logo from './logo.svg';
 import './App.css';
 import { useState } from 'react';
 import { createWorker } from 'tesseract.js';
+import { useEffect } from 'react';
 
 function App() {
-  const [image, setImage] = useState('');
-  function blobUrl() {
-    const url = URL.createObjectURL(image)
-    return url
-  }
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [textResult, setTextResult] = useState('');
+  const [submitLoading, setLoading] = useState(false)
 
-  async function toText() {
-    const worker = await createWorker('eng');
-    const data = await worker.recognize('https://tesseract.projectnaptha.com/img/eng_bw.png');
-    console.log('haha')
-    console.log(data.text);
-    await worker.terminate();
+  // const worker = createWorker()
+
+  const imageToText = async () => {
+    // await worker.load()
+    // await worker.loadLanguage('eng')
+    // await worker.initialize('eng')
+    // const { data } = await worker.recognize(selectedImage)
+    
+    if(selectedImage != null) {
+      setLoading(true)
+      setTextResult('')
+      const worker = await createWorker('eng');
+      const data = await worker.recognize(selectedImage);
+      console.log(data.data.text);
+      setTextResult(data.data.text)
+      await worker.terminate();
+      setLoading(false)
+    } else {
+      setLoading(false)
+      setTextResult('')
+    }
+    // console.log(data)
+  } 
+
+  useEffect(() => {
+    imageToText()
+  }, [selectedImage])
+
+  const handleChangeImage = e => {
+    setSelectedImage(e.target.files[0])
   }
 
   return (
     <div className="App">
-      {/* <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header> */}
-                         {image ? 
-                        <div className='flex justify-center'>                       
-                        <img src={blobUrl()} alt="Makanan" className='h-60'/> 
-                        </div>
-                        : ""}
-                        
-      <input type="file" className="file-input file-input-bordered file-input-primary bg-white w-full mx-2 mb-2" onChange={(image) => setImage(image.target.files[0])} />
-      <button onClick={toText()}>aaaa</button>
+      <p>Image to Text</p>
+      <div>
+        {/* <label htmlFor='upload'>Upload gambar</label> */}
+        <input type='file' id='upload' accept='image/*' onChange={handleChangeImage}></input>
+      </div>
+
+      {selectedImage && (
+        <img src={URL.createObjectURL(selectedImage)}></img>
+      )}
+
+      {submitLoading ? 
+      <div>Loading</div>
+      : <></>}
+
+      {textResult && (
+            <div>
+              <p>To text :</p>
+              <p className='result'>{textResult}</p>
+            </div>
+      )}
+
     </div>
   );
 }

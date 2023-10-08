@@ -24,6 +24,10 @@
   color: white;
 }
 
+.result {
+  white-space: pre-line;
+}
+
 .App-link {
   color: #61dafb;
 }
