@@ -12,17 +12,12 @@ function App() {
   // const worker = createWorker()
 
   const imageToText = async () => {
-    // await worker.load()
-    // await worker.loadLanguage('eng')
-    // await worker.initialize('eng')
-    // const { data } = await worker.recognize(selectedImage)
     
     if(selectedImage != null) {
       setLoading(true)
       setTextResult('')
       const worker = await createWorker('eng');
       const data = await worker.recognize(selectedImage);
-      console.log(data.data.text);
       setTextResult(data.data.text)
       await worker.terminate();
       setLoading(false)
